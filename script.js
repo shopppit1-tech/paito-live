@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const status = document.getElementById('paitoStatus');
   const rowCount = document.getElementById('paitoCount');
   const ticker = document.getElementById('liveTrack');
+  const badgeClasses = ['badge bg-danger', 'badge bg-primary', 'badge bg-success', 'badge bg-warning text-dark', 'badge bg-info text-dark', 'badge bg-secondary', 'badge bg-dark'];
   if (!tableBody) return;
 
   const setError = (message) => {
@@ -38,10 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const fragment = document.createDocumentFragment();
       data.rows.forEach((values) => {
         const row = document.createElement('tr');
-        values.forEach((value) => {
+        values.forEach((value, columnIndex) => {
           const cell = document.createElement('td');
           const number = document.createElement('span');
-          number.className = 'paito-number';
+          number.className = `paito-number ${value ? badgeClasses[columnIndex] : 'badge bg-light text-dark'}`;
           number.textContent = value || '—';
           cell.appendChild(number);
           row.appendChild(cell);

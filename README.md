@@ -1,6 +1,6 @@
 # Paito Live
 
-Situs statis berbahasa Indonesia untuk tampilan Paito SDY.
+Situs statis berbahasa Indonesia untuk tampilan Paito SDY. Tidak ada banner, jaringan iklan, atau tautan promosi alternatif pada halaman.
 
 ## Pembaruan otomatis
 
