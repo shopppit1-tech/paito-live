@@ -2,8 +2,8 @@ name: Update Paito SDY
 
 on:
   schedule:
-    # 22:00 WIB (UTC+7), after the daily Sydney result is expected to be available.
-    - cron: "0 15 * * *"
+    # 15:00 WIB (UTC+7).
+    - cron: "0 8 * * *"
   workflow_dispatch:
 
 permissions:
