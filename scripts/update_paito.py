@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.request
 from datetime import datetime
 from pathlib import Path
@@ -69,13 +70,22 @@ def fetch_source() -> str:
             "Accept": "text/html,application/xhtml+xml",
         },
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        if response.status != 200:
-            raise RuntimeError(f"Source returned HTTP {response.status}")
-        content_type = response.headers.get("Content-Type", "")
-        if "html" not in content_type.lower():
-            raise RuntimeError(f"Unexpected source content type: {content_type}")
-        return response.read(2_000_000).decode("utf-8", errors="replace")
+    last_error: Exception | None = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                if response.status != 200:
+                    raise RuntimeError(f"Source returned HTTP {response.status}")
+                content_type = response.headers.get("Content-Type", "")
+                if "html" not in content_type.lower():
+                    raise RuntimeError(f"Unexpected source content type: {content_type}")
+                content = response.read(2_000_000)
+                return content.decode("utf-8", errors="replace")
+        except Exception as exc:
+            last_error = exc
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+    raise RuntimeError(f"Could not download complete source response after 3 attempts: {last_error}")
 
 
 def parse_rows(html: str) -> list[list[str]]:
@@ -88,9 +98,14 @@ def parse_rows(html: str) -> list[list[str]]:
         if len(raw_row) != 35 or any(value != "" and not re.fullmatch(r"\d", value) for value in raw_row):
             raise RuntimeError(f"Unexpected Paito row shape: {len(raw_row)} cells")
         groups = [raw_row[offset : offset + 5] for offset in range(0, 35, 5)]
-        if any(not all(group) and any(group) for group in groups):
-            raise RuntimeError("A source row contains a partially populated five-digit group")
-        rows.append(["".join(group) if all(group) else "" for group in groups])
+        results = []
+        for group in groups:
+            four_digits = group[:4]
+            if any(not digit for digit in four_digits) and any(four_digits):
+                raise RuntimeError("A source row contains a partially populated four-digit result")
+            # The fifth source cell is the count field, not part of the 4D result.
+            results.append("".join(four_digits) if all(four_digits) else "")
+        rows.append(results)
     if not 10 <= len(rows) <= 600:
         raise RuntimeError(f"Unexpected Paito row count: {len(rows)}")
     return rows

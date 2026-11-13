@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const valid = Array.isArray(data.rows)
         && data.rows.length > 0
         && data.rows.every((row) => Array.isArray(row) && row.length === 7
-          && row.every((value) => value === '' || /^\d{5}$/.test(value)));
+          && row.every((value) => value === '' || /^\d{4}$/.test(value)));
       if (!valid) throw new Error('Format data tidak sesuai');
 
       const fragment = document.createDocumentFragment();
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }) + ' WIB';
       const sourceLink = document.getElementById('paitoSource');
       if (sourceLink) sourceLink.href = data.source_page;
-      if (status) status.textContent = `Pembaruan otomatis terakhir: ${fetchedText}. Sumber: Angkanet.`;
+      if (status) status.textContent = `Hasil ditampilkan 4 digit; kolom jumlah kelima tidak ditampilkan. Pembaruan terakhir: ${fetchedText}. Sumber: Angkanet.`;
       if (rowCount) rowCount.textContent = String(data.rows.length);
       if (ticker) ticker.textContent = `Riwayat Paito SDY · ${data.rows.length} baris · Diperbarui ${fetchedText} · Sumber Angkanet`;
     })
