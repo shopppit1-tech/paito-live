@@ -1,1 +1,69 @@
-document.addEventListener('DOMContentLoaded', () => {const mobileToggle = document.getElementById('mobileToggle');const superNav = document.getElementById('superNav');if (mobileToggle && superNav) {mobileToggle.addEventListener('click', () => {superNav.classList.toggle('show');});}const liveItemsData = [{code: 'cn', market: 'CHINAPOOLS', num: '7179'},{code: 'hk', market: 'HONGKONG', num: '7792'},{code: 'hk', market: 'HONGKONG 6D', num: '137792'},{code: 'hk', market: 'HONGKONG LOTTO', num: '1859'},{code: 'jp', market: 'JAPAN', num: '8862'},{code: 'kh', market: 'MAGNUM CAMBODIA', num: '1639'},{code: 'sg', market: 'SINGAPORE', num: '4556'},{code: 'au', market: 'SYDNEY', num: '7507'},{code: 'au', market: 'SYDNEY 6D', num: '107507'},{code: 'au', market: 'SYDNEY LOTTO', num: '4430'},{code: 'tw', market: 'TAIWAN', num: '2023'}];const liveTrack = document.getElementById('liveTrack');if (liveTrack) {let htmlContent = '';const renderItems = [...liveItemsData, ...liveItemsData];renderItems.forEach(item => {htmlContent += `<div class="live-item"><div class="live-logo"><span class="fi fi-${item.code}"></span></div><div class="live-market">${item.market}</div><div class="live-result-number">${item.num}</div></div>`;});liveTrack.innerHTML = htmlContent;}const paitoTableBody = document.getElementById('paitoTableBody');if (paitoTableBody) {let paitoRows = '';for (let i = 1; i <= 15; i++) {paitoRows += `<tr><td>2026-${String(i).padStart(2, '0')}</td><td><span class="badge bg-danger">75${i}</span></td><td><span class="badge bg-primary">82${i}</span></td><td><span class="badge bg-success">43${i}</span></td><td><span class="badge bg-warning text-dark">91${i}</span></td><td><span class="badge bg-info text-dark">12${i}</span></td><td><span class="badge bg-secondary">55${i}</span></td><td><span class="badge bg-dark">67${i}</span></td></tr>`;}paitoTableBody.innerHTML = paitoRows;}});
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileToggle = document.getElementById('mobileToggle');
+  const superNav = document.getElementById('superNav');
+  if (mobileToggle && superNav) {
+    mobileToggle.addEventListener('click', () => superNav.classList.toggle('show'));
+  }
+
+  const tableBody = document.getElementById('paitoTableBody');
+  const status = document.getElementById('paitoStatus');
+  const rowCount = document.getElementById('paitoCount');
+  const ticker = document.getElementById('liveTrack');
+  if (!tableBody) return;
+
+  const setError = (message) => {
+    if (status) status.textContent = message;
+    tableBody.replaceChildren();
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 7;
+    cell.className = 'text-center text-muted py-4';
+    cell.textContent = message;
+    row.appendChild(cell);
+    tableBody.appendChild(row);
+  };
+
+  fetch(`data/paito-sdy.json?t=${Date.now()}`, { cache: 'no-store' })
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const valid = Array.isArray(data.rows)
+        && data.rows.length > 0
+        && data.rows.every((row) => Array.isArray(row) && row.length === 7
+          && row.every((value) => value === '' || /^\d{5}$/.test(value)));
+      if (!valid) throw new Error('Format data tidak sesuai');
+
+      const fragment = document.createDocumentFragment();
+      data.rows.forEach((values) => {
+        const row = document.createElement('tr');
+        values.forEach((value) => {
+          const cell = document.createElement('td');
+          const number = document.createElement('span');
+          number.className = 'paito-number';
+          number.textContent = value || '—';
+          cell.appendChild(number);
+          row.appendChild(cell);
+        });
+        fragment.appendChild(row);
+      });
+      tableBody.replaceChildren(fragment);
+
+      const fetched = new Date(data.fetched_at);
+      const fetchedText = Number.isNaN(fetched.getTime())
+        ? data.fetched_at
+        : fetched.toLocaleString('id-ID', {
+          timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short',
+        }) + ' WIB';
+      const sourceLink = document.getElementById('paitoSource');
+      if (sourceLink) sourceLink.href = data.source_page;
+      if (status) status.textContent = `Pembaruan otomatis terakhir: ${fetchedText}. Sumber: Angkanet.`;
+      if (rowCount) rowCount.textContent = String(data.rows.length);
+      if (ticker) ticker.textContent = `Riwayat Paito SDY · ${data.rows.length} baris · Diperbarui ${fetchedText} · Sumber Angkanet`;
+    })
+    .catch((error) => {
+      console.error('Gagal memuat data Paito SDY:', error);
+      setError('Data belum dapat dimuat. Coba muat ulang halaman nanti.');
+    });
+});

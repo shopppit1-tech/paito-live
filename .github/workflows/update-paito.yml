@@ -1,0 +1,34 @@
+name: Update Paito SDY
+
+on:
+  schedule:
+    # 22:00 WIB (UTC+7), after the daily Sydney result is expected to be available.
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-paito-sdy
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Fetch and validate current Paito data
+        run: python3 scripts/update_paito.py
+      - name: Commit updated dataset
+        run: |
+          if git diff --quiet -- data/paito-sdy.json; then
+            echo "No data changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/paito-sdy.json
+          git commit -m "Update Paito SDY data"
+          git push
