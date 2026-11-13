@@ -6,3 +6,20 @@
 #paitoTableBody tr:nth-child(even) .paito-number { background: #f1f3f5; color: #343a40; }
 .paito-status { color: #666; font-size: .8rem; padding: 8px 4px 2px; }
 @media (max-width: 600px) { #show th, #show td { min-width: 48px; font-size: 11px !important; } .paito-number { min-width: 3em; padding: 4px 1px; letter-spacing: 0; } }
+
+/* Distinct day colors for the Paito grid */
+#show thead th:nth-child(1) { background: #9f1239; }
+#show thead th:nth-child(2) { background: #1d4ed8; }
+#show thead th:nth-child(3) { background: #047857; }
+#show thead th:nth-child(4) { background: #b45309; }
+#show thead th:nth-child(5) { background: #6d28d9; }
+#show thead th:nth-child(6) { background: #0e7490; }
+#show thead th:nth-child(7) { background: #be123c; }
+#show #paitoTableBody td:nth-child(1) .paito-number { background: #ffe4e6; color: #9f1239; }
+#show #paitoTableBody td:nth-child(2) .paito-number { background: #dbeafe; color: #1e40af; }
+#show #paitoTableBody td:nth-child(3) .paito-number { background: #d1fae5; color: #065f46; }
+#show #paitoTableBody td:nth-child(4) .paito-number { background: #fef3c7; color: #92400e; }
+#show #paitoTableBody td:nth-child(5) .paito-number { background: #ede9fe; color: #5b21b6; }
+#show #paitoTableBody td:nth-child(6) .paito-number { background: #cffafe; color: #155e75; }
+#show #paitoTableBody td:nth-child(7) .paito-number { background: #fce7f3; color: #9d174d; }
+#show #paitoTableBody .paito-number { font-size: .88rem; }
